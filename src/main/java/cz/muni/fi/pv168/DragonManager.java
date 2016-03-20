@@ -10,6 +10,6 @@ public interface DragonManager {
     void createDragon(Dragon dragon) throws ServiceFailureException;
     Dragon getDragon(Long id) throws ServiceFailureException;
     void updateDragon(Dragon dragon) throws ServiceFailureException;
-    void deleteDragon(Long dragon) throws ServiceFailureException;
+    void deleteDragon(Dragon dragon) throws ServiceFailureException;
     List<Dragon> findAllDragon() throws ServiceFailureException;
 }

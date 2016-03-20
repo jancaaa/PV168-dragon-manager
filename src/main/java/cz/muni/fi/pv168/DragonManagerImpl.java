@@ -23,7 +23,7 @@ public class DragonManagerImpl implements DragonManager{
     }
 
     @Override
-    public void deleteDragon(Long dragon) throws ServiceFailureException {
+    public void deleteDragon(Dragon dragon) throws ServiceFailureException {
 
     }
 
