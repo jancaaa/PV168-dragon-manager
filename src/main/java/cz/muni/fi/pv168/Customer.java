@@ -5,50 +5,49 @@ package cz.muni.fi.pv168;
  * @version: 8. 3. 2016
  */
 public class Customer {
+
+    private String name, phone, address;
     private Long id;
-    private String firstName;
-    private String secondName;
-    private String phone;
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getSecondName() {
-        return secondName;
-    }
-
-    public void setSecondName(String secondName) {
-        this.secondName = secondName;
-    }
-
-    public String getPhone() {
-        return phone;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setPhone(String phone) {
         this.phone = phone;
     }
 
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
     @Override
     public String toString() {
         return "Customer{" +
-                "id=" + id +
-                ", firstName='" + firstName + '\'' +
-                ", secondName='" + secondName + '\'' +
+                "name='" + name + '\'' +
                 ", phone='" + phone + '\'' +
+                ", address='" + address + '\'' +
+                ", id=" + id +
                 '}';
     }
 
@@ -59,12 +58,11 @@ public class Customer {
 
         Customer customer = (Customer) o;
 
-        return getId() == customer.getId();
-
+        return id.equals(customer.id);
     }
 
     @Override
     public int hashCode() {
-        return (int) (getId() ^ (getId() >>> 32));
+        return id.hashCode();
     }
 }

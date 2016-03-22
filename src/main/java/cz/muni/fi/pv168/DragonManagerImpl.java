@@ -60,19 +60,19 @@ public class DragonManagerImpl implements DragonManager {
         if (keyRS.next()) {
             if (keyRS.getMetaData().getColumnCount() != 1) {
                 throw new ServiceFailureException("Internal Error: Generated key"
-                        + "retriving failed when trying to insert dragon " + dragon
+                        + "retrieving failed when trying to insert dragon " + dragon
                         + " - wrong key fields count: " + keyRS.getMetaData().getColumnCount());
             }
             Long result = keyRS.getLong(1);
             if (keyRS.next()) {
                 throw new ServiceFailureException("Internal Error: Generated key"
-                        + "retriving failed when trying to insert dragon " + dragon
+                        + "retrieving failed when trying to insert dragon " + dragon
                         + " - more keys found");
             }
             return result;
         } else {
             throw new ServiceFailureException("Internal Error: Generated key"
-                    + "retriving failed when trying to insert dragon " + dragon
+                    + "retrieving failed when trying to insert dragon " + dragon
                     + " - no key found");
         }
     }
