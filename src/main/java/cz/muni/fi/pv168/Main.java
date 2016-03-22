@@ -1,4 +1,4 @@
-package cz.muni.fi.pv168;
+package main.java.cz.muni.fi.pv168;
 
 public class Main {
 

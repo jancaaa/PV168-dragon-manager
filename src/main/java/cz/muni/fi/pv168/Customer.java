@@ -1,4 +1,4 @@
-package cz.muni.fi.pv168;
+package main.java.cz.muni.fi.pv168;
 
 /**
  * @author: Jana Zahradnickova,  UCO 433598
