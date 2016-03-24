@@ -1,29 +1,52 @@
 package cz.muni.fi.pv168;
 
+import cz.muni.fi.pv168.common.DBUtils;
+import org.apache.derby.jdbc.EmbeddedDataSource;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 
-import javax.sql.DataSource;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Logger;
+import javax.sql.DataSource;
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
+
 
 /**
  * @author: Jana Zahradnickova,  UCO 433598
  * @version: 8. 3. 2016
  */
 public class DragonManagerTest {
+    private static final Logger LOGGER = Logger.getLogger(DragonManagerImpl.class.getName());
     private DragonManagerImpl manager;
+    private DataSource dataSource;
 
     @Before
     public void setUp() throws SQLException {
-        manager = new DragonManagerImpl();
+        dataSource = prepareDataSource();
+        DBUtils.executeSqlScript(dataSource, DragonManager.class.getResource("db_create.sql"));
+        manager = new DragonManagerImpl(dataSource);
+    }
+
+    private DataSource prepareDataSource() {
+        EmbeddedDataSource ds = new EmbeddedDataSource();
+        //we will use in memory database
+        ds.setDatabaseName("memory:dragonmgr-test");
+        ds.setCreateDatabase("create");
+        return ds;
+    }
+
+    @After
+    public void tearDown() throws SQLException {
+        DBUtils.executeSqlScript(dataSource, DragonManager.class.getResource("db_drop.sql"));
     }
 
     @Test

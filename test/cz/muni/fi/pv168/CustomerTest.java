@@ -1,9 +1,13 @@
 package cz.muni.fi.pv168;
 
+import cz.muni.fi.pv168.common.DBUtils;
+import org.apache.derby.jdbc.EmbeddedDataSource;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -45,12 +49,28 @@ import static org.junit.Assert.*;
 public class CustomerTest {
 
     private CustomerManagerImpl manager;
-    private final DataSource dataSource = null;
+    private DataSource dataSource;
 
     @Before
-    public void setUp() {
+    public void setUp() throws SQLException {
+        dataSource = prepareDataSource();
+        DBUtils.executeSqlScript(dataSource, LeaseManager.class.getResource("db_create.sql"));
         manager = new CustomerManagerImpl(dataSource);
     }
+
+    private DataSource prepareDataSource() {
+        EmbeddedDataSource ds = new EmbeddedDataSource();
+        //we will use in memory database
+        ds.setDatabaseName("memory:customermgr-test");
+        ds.setCreateDatabase("create");
+        return ds;
+    }
+
+    @After
+    public void tearDown() throws SQLException {
+        DBUtils.executeSqlScript(dataSource, CustomerManager.class.getResource("db_drop.sql"));
+    }
+
 
     @Test
     public void createCustomer() {
