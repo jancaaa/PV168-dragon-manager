@@ -1,5 +1,9 @@
 package cz.muni.fi.pv168;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.sql.DataSource;
 import java.util.List;
 
 /**
@@ -7,13 +11,21 @@ import java.util.List;
  * @version: 8. 3. 2016
  */
 public class LeaseManagerImpl implements LeaseManager {
+    final static Logger log = LoggerFactory.getLogger(DragonManagerImpl.class);
+
+    private final DataSource dataSource;
+
+    public LeaseManagerImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     @Override
     public void createLease(Lease lease) throws ServiceFailureException {
 
     }
 
     @Override
-    public Dragon getLease(Long id) throws ServiceFailureException {
+    public Lease getLease(Long id) throws ServiceFailureException {
         return null;
     }
 

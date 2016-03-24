@@ -8,7 +8,7 @@ import java.util.List;
  */
 public interface LeaseManager {
     void createLease(Lease lease) throws ServiceFailureException;
-    Dragon getLease(Long id) throws ServiceFailureException;
+    Lease getLease(Long id) throws ServiceFailureException;
     void updateLease(Lease lease) throws ServiceFailureException;
     void deleteLease(Lease lease) throws ServiceFailureException;
     List<Lease> findAllLeases() throws ServiceFailureException;
