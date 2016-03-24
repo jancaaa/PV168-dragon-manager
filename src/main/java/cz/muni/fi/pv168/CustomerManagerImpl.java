@@ -17,17 +17,28 @@ public class CustomerManagerImpl implements CustomerManager {
         this.dataSource = dataSource;
     }
 
-    private void validate(Customer Customer) throws IllegalArgumentException {
-        if (Customer == null) {
+    private void validate(Customer customer) throws IllegalArgumentException {
+        if (customer == null) {
             throw new IllegalArgumentException("Customer is null");
         }
-        if (Customer.getName().length() == 0) {
+        if (customer.getName() == null) {
+            throw new IllegalArgumentException("Customer name is null pointer");
+        }
+        if (customer.getName().length() == 0) {
             throw new IllegalArgumentException("Customer name length is zero");
         }
-        if (Customer.getPhone().length() == 0) {
+
+        if (customer.getPhone() == null) {
+            throw new IllegalArgumentException("Customer phone length is null pointer");
+        }
+        if (customer.getPhone().length() == 0) {
             throw new IllegalArgumentException("Customer phone length is zero");
         }
-        if (Customer.getAddress().length() == 0) {
+
+        if (customer.getAddress() == null) {
+            throw new IllegalArgumentException("Customer address is null pointer");
+        }
+        if (customer.getAddress().length() == 0) {
             throw new IllegalArgumentException("Customer address length is zero");
         }
     }
@@ -36,6 +47,7 @@ public class CustomerManagerImpl implements CustomerManager {
     public void createCustomer(Customer Customer) throws ServiceFailureException {
 
         validate(Customer);
+
         if (Customer.getId() != null) {
             throw new IllegalArgumentException("Customer id is already set");
         }
@@ -43,7 +55,7 @@ public class CustomerManagerImpl implements CustomerManager {
         try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement st = connection.prepareStatement(
-                        "INSERT INTO Customer (name,phone,address) VALUES (?,?,?,?)",
+                        "INSERT INTO customer (name,phone,address) VALUES (?,?,?,?)",
                         Statement.RETURN_GENERATED_KEYS)) {
 
             st.setString(1, Customer.getName());
@@ -129,12 +141,12 @@ public class CustomerManagerImpl implements CustomerManager {
         try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement st = connection.prepareStatement(
-                        "UPDATE Customer SET name = ?, phone = ?, address = ? WHERE id = ?")) {
+                        "UPDATE customer SET name = ?, phone = ?, address = ? WHERE id = ?")) {
 
             st.setString(1, customer.getName());
             st.setString(2, customer.getPhone());
             st.setString(3, customer.getAddress());
-            st.setLong(5, customer.getId());
+            st.setLong(4, customer.getId());
 
             int count = st.executeUpdate();
             if (count == 0) {
@@ -154,20 +166,19 @@ public class CustomerManagerImpl implements CustomerManager {
         if (customer.getId() == null) {
             throw new IllegalArgumentException("Customer id is null");
         }
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement st = connection.prepareStatement(
-                        "DELETE FROM customer WHERE id = ?")) {
 
-            st.setLong(1, customer.getId());
+        if (getCustomer(customer.getId())==null)
+            throw new IllegalArgumentException("Customer with given id does not exists");
 
-            int count = st.executeUpdate();
-            if (count == 0) {
-                throw new EntityNotFoundException("Customer " + customer + " was not found in database!");
+        try (Connection conn = dataSource.getConnection()) {
+            try (PreparedStatement st = conn.prepareStatement("DELETE FROM cutomer WHERE id=?")) {
+                st.setLong(1, customer.getId());
+                if (st.executeUpdate() != 1) {
+                    throw new ServiceFailureException("did not delete customer with id =" + customer);
+                }
             }
         } catch (SQLException ex) {
-            throw new ServiceFailureException(
-                    "Error when updating customer " + customer, ex);
+            throw new ServiceFailureException("Error when retrieving all dragons", ex);
         }
     }
 
