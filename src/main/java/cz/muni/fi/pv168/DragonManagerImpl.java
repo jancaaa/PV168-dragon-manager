@@ -37,7 +37,7 @@ public class DragonManagerImpl implements DragonManager {
         }
 
         try (Connection conn = dataSource.getConnection()) {
-            try (PreparedStatement st = conn.prepareStatement("INSERT INTO dragon (name,countOfHeads,priceGorDay) VALUES (?,?,?)",
+            try (PreparedStatement st = conn.prepareStatement("INSERT INTO dragon (name,countOfHeads,priceForDay) VALUES (?,?,?)",
                     Statement.RETURN_GENERATED_KEYS)) {
                 st.setString(1, dragon.getName());
                 st.setInt(2, dragon.getCountOfHeads());
@@ -136,6 +136,14 @@ public class DragonManagerImpl implements DragonManager {
 
     @Override
     public void deleteDragon(Dragon dragon) throws ServiceFailureException {
+        if (dragon == null)
+            throw new IllegalArgumentException("dragon pointer is null");
+        if (dragon.getId() == null)
+            throw new IllegalArgumentException("dragon with null id cannot be deleted");
+
+        if (getDragon(dragon.getId())==null)
+            throw new IllegalArgumentException("dragon with given id does not exists");
+
         try (Connection conn = dataSource.getConnection()) {
             try (PreparedStatement st = conn.prepareStatement("DELETE FROM dragon WHERE id=?")) {
                 st.setLong(1, dragon.getId());
