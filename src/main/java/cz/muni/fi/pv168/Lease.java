@@ -14,7 +14,7 @@ public class Lease {
     private Date endDate;
     private int price;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
