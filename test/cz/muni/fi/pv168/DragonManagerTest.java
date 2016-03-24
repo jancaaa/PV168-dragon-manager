@@ -156,14 +156,7 @@ public class DragonManagerTest {
 
         assertThat("countOfHeads was changed when changing name", dragon.getCountOfHeads(), is(equalTo(1)));
         assertThat("priceForDay was changed when changing name", dragon.getPriceForDay(), is(equalTo(200)));
-        assertThat("name as not changed", dragon.getName(), is(equalTo("tom's dragon")));
-
-        dragon.setName(null);
-        manager.updateDragon(dragon);
-        dragon = manager.getDragon(dragonId);
-        assertEquals(1, dragon.getCountOfHeads());
-        assertEquals(200, dragon.getPriceForDay());
-        assertNull(dragon.getName());
+        assertThat("name was not changed", dragon.getName(), is(equalTo("tom's dragon")));
 
         // Check if updates didn't affected other records
         assertDeepEquals(secondDragon, manager.getDragon(secondDragon.getId()));
@@ -250,6 +243,7 @@ public class DragonManagerTest {
             //OK
         }
 
+
         try {
             long id = Long.parseLong(null);
             dragon.setId(id);
@@ -266,6 +260,7 @@ public class DragonManagerTest {
         } catch (IllegalArgumentException ex) {
             //OK
         }
+
     }
 
     private void assertDeepEquals(List<Dragon> expectedList, List<Dragon> actualList) {
