@@ -1,21 +1,22 @@
 package cz.muni.fi.pv168;
 
 import cz.muni.fi.pv168.common.DBUtils;
+import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-
-
-import java.sql.SQLException;
-import java.util.*;
 import javax.sql.DataSource;
-import org.apache.derby.jdbc.EmbeddedDataSource;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.*;
+
+import java.sql.Date;
+import java.time.LocalDate;
+
 import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author: Jana Zahradnickova,  UCO 433598
@@ -23,13 +24,18 @@ import static org.junit.Assert.assertEquals;
  */
 public class LeaseManagerTest {
     private LeaseManagerImpl manager;
+    private DragonManagerImpl dragonManager;
+    private CustomerManagerImpl customerManager;
     private DataSource dataSource;
 
     @Before
     public void setUp() throws SQLException {
         dataSource = prepareDataSource();
         DBUtils.executeSqlScript(dataSource, LeaseManager.class.getResource("db_create.sql"));
+
         manager = new LeaseManagerImpl(dataSource);
+        dragonManager = new DragonManagerImpl(dataSource);
+        customerManager = new CustomerManagerImpl(dataSource);
     }
 
     private DataSource prepareDataSource() {
@@ -48,8 +54,14 @@ public class LeaseManagerTest {
     @Test
     public void createLease() {
         Customer customer = newCustomer("Ashen Shugar", "+999 666 333", "Iratus 7");
+        customerManager.createCustomer(customer);
         Dragon dragon = newDragon("janca's dragon", 3, 100);
-        Lease lease = newLease(dragon,customer,new Date(2016,2,2),new Date(2016,2,3),200);
+        dragonManager.createDragon(dragon);
+
+        LocalDate start = LocalDate.of(2016,Month.FEBRUARY,2);
+        LocalDate end = LocalDate.of(2016,Month.FEBRUARY,3);
+
+        Lease lease = newLease(dragon,customer,start,end,200);
         manager.createLease(lease);
 
         Long leaseId = lease.getId();
@@ -75,7 +87,10 @@ public class LeaseManagerTest {
 
         Customer customer = newCustomer("Ashen Shugar", "+999 666 333", "Iratus 7");
         Dragon dragon = newDragon("janca's dragon", 3, 100);
-        Lease lease = newLease(dragon,customer,new Date(2016,2,2),new Date(2016,2,3),200);
+
+        LocalDate start = LocalDate.of(2016,Month.FEBRUARY,2);
+        LocalDate end = LocalDate.of(2016,Month.FEBRUARY,3);
+        Lease lease = newLease(dragon,customer,start,end,200);
         lease.setId(1L);
         try {
             manager.createLease(lease);
@@ -84,7 +99,9 @@ public class LeaseManagerTest {
             //OK
         }
 
-        lease = newLease(dragon,customer,new Date(2017,2,29),new Date(2016,2,3),200);
+        LocalDate start1 = LocalDate.of(2017,Month.FEBRUARY,28);
+        LocalDate end1 = LocalDate.of(2016,Month.FEBRUARY,3);
+        lease = newLease(dragon,customer,start1,end1,200);
         try {
             manager.createLease(lease);
             fail("endDate before startDate");
@@ -92,7 +109,9 @@ public class LeaseManagerTest {
             //OK
         }
 
-        lease = newLease(dragon,customer,new Date(2016,2,2),new Date(2016,2,3),-200);
+        LocalDate start2 = LocalDate.of(2016,Month.FEBRUARY,2);
+        LocalDate end2 = LocalDate.of(2016,Month.FEBRUARY,3);
+        lease = newLease(dragon,customer,start2,end2,-200);
         try {
             manager.createLease(lease);
             fail("price is negative");
@@ -110,8 +129,17 @@ public class LeaseManagerTest {
         Customer customer2 = newCustomer("Petr Neznamy","+333 666 999","Horni Dolni");
         Dragon dragon2 = newDragon("janca's second dragon", 5, 200);
 
-        Lease l1 = newLease(dragon1,customer1,new Date(2016,2,2),new Date(2016,2,3),200);
-        Lease l2 = newLease(dragon2,customer2,new Date(2016,5,5),new Date(2016,5,6),200);
+        dragonManager.createDragon(dragon1);
+        dragonManager.createDragon(dragon2);
+        customerManager.createCustomer(customer1);
+        customerManager.createCustomer(customer2);
+
+        LocalDate start = LocalDate.of(2016,Month.FEBRUARY,2);
+        LocalDate end = LocalDate.of(2016,Month.FEBRUARY,3);
+        Lease l1 = newLease(dragon1,customer1,start,end,200);
+        LocalDate start1 = LocalDate.of(2016,Month.MAY,5);
+        LocalDate end1 = LocalDate.of(2016,Month.MAY,6);
+        Lease l2 = newLease(dragon2,customer2,start1,end1,200);
 
         manager.createLease(l1);
         manager.createLease(l2);
@@ -133,86 +161,112 @@ public class LeaseManagerTest {
         Customer customer2 = newCustomer("Petr Neznamy","+333 666 999","Horni Dolni");
         Dragon dragon2 = newDragon("janca's second dragon", 5, 200);
 
+        dragonManager.createDragon(dragon1);
+        dragonManager.createDragon(dragon2);
+        customerManager.createCustomer(customer1);
+        customerManager.createCustomer(customer2);
+
+
+        LocalDate start1 = LocalDate.of(2016, Month.FEBRUARY,2);
+        LocalDate end1 = LocalDate.of(2016, Month.FEBRUARY,3);
+        LocalDate start2 = LocalDate.of(2016,Month.MAY,5);
+        LocalDate end2 = LocalDate.of(2016,Month.MAY,6);
+
+
+        Lease lease1 = newLease(dragon1,customer1,start1,end1,200);
+        Lease lease2 = newLease(dragon2,customer2,start2,end2,200);
+
+        manager.createLease(lease1);
+        manager.createLease(lease2);
 
         Customer customer3 = newCustomer("Petr Znamy","+333 666 999","Dolni Horni");
-        Dragon dragon3 = newDragon("janca's thord dragon", 10, 1000);
+        Dragon dragon3 = newDragon("janca's third dragon", 10, 1000);
 
-        Lease lease = newLease(dragon1,customer1,new Date(2016,2,2),new Date(2016,2,3),200);
-        Lease secondLease = newLease(dragon2,customer2,new Date(2016,5,5),new Date(2016,5,6),200);
+        dragonManager.createDragon(dragon3);
+        customerManager.createCustomer(customer3);
 
-        manager.createLease(lease);
-        manager.createLease(secondLease);
-        Long leaseId = lease.getId();
+        Long leaseId = lease1.getId();
 
         //change of customer
-        lease.setCustomer(customer3);
-        manager.updateLease(lease);
+        lease1.setCustomer(customer3.getId());
+        manager.updateLease(lease1);
         //load from database
-        lease = manager.getLease(leaseId);
+        lease1 = manager.getLease(leaseId);
 
-        assertThat("customer was not changed", lease.getCustomer(), is(equalTo(customer3)));
-        assertThat("dragon was changed when changing customer", lease.getDragon(), is(equalTo(dragon1)));
-        assertThat("startDate was changed when changing customer", lease.getStartDate(), is(equalTo(new Date(2016,2,2))));
-        assertThat("endDate was changed when changing customer", lease.getEndDate(), is(equalTo(new Date(2016,2,3))));
-        assertThat("price was changed when changing customer", lease.getPrice(), is(equalTo(200)));
+        assertThat("customer was not changed", lease1.getCustomer(), is(equalTo(customer3.getId())));
+        assertThat("dragon was changed when changing customer", lease1.getDragon(), is(equalTo(dragon1.getId())));
+        assertThat("startDate was changed when changing customer", lease1.getStartDate(), is(equalTo(start1)));
+        assertThat("endDate was changed when changing customer", lease1.getEndDate(), is(equalTo(end1)));
+        assertThat("price was changed when changing customer", lease1.getPrice(), is(equalTo(200)));
 
         //change of dragon
-        lease.setDragon(dragon3);
-        manager.updateLease(lease);
+        lease1.setDragon(dragon3.getId());
+        manager.updateLease(lease1);
         //load from database
-        lease = manager.getLease(leaseId);
+        lease1 = manager.getLease(leaseId);
 
-        assertThat("dragon was not changed", lease.getDragon(), is(equalTo(dragon3)));
-        assertThat("customer was changed when changing dragon", lease.getCustomer(), is(equalTo(customer1)));
-        assertThat("startDate was changed when changing dragon", lease.getStartDate(), is(equalTo(new Date(2016,2,2))));
-        assertThat("endDate was changed when changing dragon", lease.getEndDate(), is(equalTo(new Date(2016,2,3))));
-        assertThat("price was changed when changing dragon", lease.getPrice(), is(equalTo(200)));
+
+        assertThat("dragon was not changed", lease1.getDragon(), is(equalTo(dragon3.getId())));
+        assertThat("customer was changed when changing dragon", lease1.getCustomer(), is(equalTo(customer3.getId())));
+        assertThat("startDate was changed when changing dragon", lease1.getStartDate(), is(equalTo(start1)));
+        assertThat("endDate was changed when changing dragon", lease1.getEndDate(), is(equalTo(end1)));
+        assertThat("price was changed when changing dragon", lease1.getPrice(), is(equalTo(200)));
 
         //change of startDate
-        lease.setStartDate(new Date(2010,1,1));
-        manager.updateLease(lease);
-        lease = manager.getLease(leaseId);
+        LocalDate start3 =  LocalDate.of(2010,Month.JANUARY,1);
+        lease1.setStartDate(start3);
+        manager.updateLease(lease1);
+        lease1 = manager.getLease(leaseId);
 
-        assertThat("startDate was not changed", lease.getStartDate(), is(equalTo(new Date(2010,1,1))));
-        assertThat("dragon was changed when changing startDate", lease.getDragon(), is(equalTo(dragon1)));
-        assertThat("customer was changed when changing startDate", lease.getCustomer(), is(equalTo(customer1)));
-        assertThat("endDate was changed when changing startDate", lease.getEndDate(), is(equalTo(new Date(2016,2,3))));
-        assertThat("price was changed when changing startDate", lease.getPrice(), is(equalTo(200)));
+
+        assertThat("startDate was not changed", lease1.getStartDate(), is(equalTo(start3)));
+        assertThat("dragon was changed when changing startDate", lease1.getDragon(), is(equalTo(dragon3.getId())));
+        assertThat("customer was changed when changing startDate", lease1.getCustomer(), is(equalTo(customer3.getId())));
+        assertThat("endDate was changed when changing startDate", lease1.getEndDate(), is(equalTo(end1)));
+        assertThat("price was changed when changing startDate", lease1.getPrice(), is(equalTo(200)));
 
         //change of endDate
-        lease.setEndDate(new Date(2020,1,1));
-        manager.updateLease(lease);
-        lease = manager.getLease(leaseId);
+        LocalDate end3 = LocalDate.of(2020,Month.JANUARY,1);
+        lease1.setEndDate(end3);
+        manager.updateLease(lease1);
+        lease1 = manager.getLease(leaseId);
 
-        assertThat("endDate was not changed", lease.getEndDate(), is(equalTo(new Date(2020,1,1))));
-        assertThat("dragon was changed when changing endDate", lease.getDragon(), is(equalTo(dragon1)));
-        assertThat("customer was changed when changing endDate", lease.getCustomer(), is(equalTo(customer1)));
-        assertThat("startDate was changed when changing endDate", lease.getStartDate(), is(equalTo(new Date(2016,2,2))));
-        assertThat("price was changed when changing endDate", lease.getPrice(), is(equalTo(200)));
+        assertThat("endDate was not changed", lease1.getEndDate(), is(equalTo(end3)));
+        assertThat("dragon was changed when changing endDate", lease1.getDragon(), is(equalTo(dragon3.getId())));
+        assertThat("customer was changed when changing endDate", lease1.getCustomer(), is(equalTo(customer3.getId())));
+        assertThat("startDate was changed when changing endDate", lease1.getStartDate(), is(equalTo(start3)));
+        assertThat("price was changed when changing endDate", lease1.getPrice(), is(equalTo(200)));
 
         //change of price
 
-        lease.setPrice(5000);
-        manager.updateLease(lease);
-        lease = manager.getLease(leaseId);
+        lease1.setPrice(5000);
+        manager.updateLease(lease1);
+        lease1 = manager.getLease(leaseId);
 
-        assertThat("price was not changed", lease.getPrice(), is(equalTo(5000)));
-        assertThat("dragon was changed when changing countOfHeads", lease.getDragon(), is(equalTo(dragon1)));
-        assertThat("customer was changed when changing countOfHeads", lease.getCustomer(), is(equalTo(customer1)));
-        assertThat("startDate was changed when changing countOfHeads", lease.getStartDate(), is(equalTo(new Date(2016,2,2))));
-        assertThat("endDate was changed when changing countOfHeads", lease.getEndDate(), is(equalTo(new Date(2016,2,3))));
+
+        assertThat("price was not changed", lease1.getPrice(), is(equalTo(5000)));
+        assertThat("dragon was changed when changing countOfHeads", lease1.getDragon(), is(equalTo(dragon3.getId())));
+        assertThat("customer was changed when changing countOfHeads", lease1.getCustomer(), is(equalTo(customer3.getId())));
+        assertThat("startDate was changed when changing countOfHeads", lease1.getStartDate(), is(equalTo(start3)));
+        assertThat("endDate was changed when changing countOfHeads", lease1.getEndDate(), is(equalTo(end3)));
 
 
         // Check if updates didn't affected other records
-        assertDeepEquals(secondLease, manager.getLease(secondLease.getId()));
+        assertDeepEquals(lease2, manager.getLease(lease2.getId()));
     }
 
     @Test
     public void updateLeaseWithWrongAttributes() {
 
+        LocalDate start = LocalDate.of(2016,Month.FEBRUARY,2);
+        LocalDate end = LocalDate.of(2016,Month.FEBRUARY,3);
         Customer customer = newCustomer("Ashen Shugar", "+999 666 333", "Iratus 7");
         Dragon dragon = newDragon("janca's dragon", 3, 100);
-        Lease lease = newLease(dragon,customer,new Date(2016,2,2),new Date(2016,2,3),200);
+
+        dragonManager.createDragon(dragon);
+        customerManager.createCustomer(customer);
+
+        Lease lease = newLease(dragon,customer,start,end,200);
         manager.createLease(lease);
         Long dragonId = lease.getId();
 
@@ -296,9 +350,17 @@ public class LeaseManagerTest {
         Dragon dragon1 = newDragon("janca's dragon", 3, 100);
         Customer customer2 = newCustomer("Petr Neznamy","+333 666 999","Horni Dolni");
         Dragon dragon2 = newDragon("janca's second dragon", 5, 200);
+        dragonManager.createDragon(dragon1);
+        dragonManager.createDragon(dragon2);
+        customerManager.createCustomer(customer1);
+        customerManager.createCustomer(customer2);
 
-        Lease lease1 = newLease(dragon1,customer1,new Date(2016,2,2),new Date(2016,2,3),200);
-        Lease lease2 = newLease(dragon2,customer2,new Date(2016,5,5),new Date(2016,5,6),200);
+        LocalDate start = LocalDate.of(2016,Month.FEBRUARY,2);
+        LocalDate end = LocalDate.of(2016,Month.FEBRUARY,3);
+        Lease lease1 = newLease(dragon1,customer1,start,end,200);
+        LocalDate start1 = LocalDate.of(2016,Month.MAY,5);
+        LocalDate end1 = LocalDate.of(2016,Month.MAY,6);
+        Lease lease2 = newLease(dragon2,customer2,start1,end1,200);
 
         manager.createLease(lease1);
         manager.createLease(lease2);
@@ -317,7 +379,9 @@ public class LeaseManagerTest {
 
         Customer customer = newCustomer("Ashen Shugar", "+999 666 333", "Iratus 7");
         Dragon dragon = newDragon("janca's dragon", 3, 100);
-        Lease lease = newLease(dragon,customer,new Date(2016,2,2),new Date(2016,2,3),200);
+        LocalDate start =LocalDate.of(2016,Month.FEBRUARY,2);
+        LocalDate end = LocalDate.of(2016,Month.FEBRUARY,3);
+        Lease lease = newLease(dragon,customer,start,end,200);
 
         try {
             manager.deleteLease(null);
@@ -356,17 +420,18 @@ public class LeaseManagerTest {
         assertEquals("id value is not equal", expected.getId(), actual.getId());
         assertEquals("dragon value is not equal", expected.getDragon(), actual.getDragon());
         assertEquals("customer value is not equal", expected.getCustomer(), actual.getCustomer());
-        assertEquals("startDate value is not equal", expected.getStartDate(), actual.getEndDate());
+        assertEquals("startDate value is not equal", expected.getStartDate(), actual.getStartDate());
         assertEquals("endDate value is not equal", expected.getEndDate(), actual.getEndDate());
     }
 
-    private static Lease newLease(Dragon dragon, Customer customer, Date startDate, Date endDate, int price) {
+    private static Lease newLease(Dragon dragon, Customer customer, LocalDate startDate, LocalDate endDate, int price) {
         Lease lease = new Lease();
 
-        lease.setDragon(dragon);
-        lease.setCustomer(customer);
+        lease.setDragon(dragon.getId());
+        lease.setCustomer(customer.getId());
         lease.setStartDate(startDate);
         lease.setEndDate(endDate);
+        lease.setPrice(price);
         return lease;
     }
 

@@ -46,7 +46,7 @@ import static org.junit.Assert.*;
 /**
  * Created by Tom on marec 15, 2016.
  */
-public class CustomerTest {
+public class CustomerManagerTest {
 
     private CustomerManagerImpl manager;
     private DataSource dataSource;
@@ -103,20 +103,20 @@ public class CustomerTest {
 
     @Test
     public void createCustomerWithWrongValuesNum() {
-        Customer customer = newCustomer("Ashen Shugar", "alphabeta", "Iratus 7");
+        Customer customer = newCustomer("Ashen Shugar", "", "Iratus 7");
         try {
             manager.createCustomer(customer);
-            fail("alphabetical phone number not allowed");
+            fail("missing phone number not allowed");
         } catch (IllegalArgumentException e) {
         }
     }
 
     @Test
     public void createCustomerWithWrongValuesName() {
-        Customer customer = newCustomer("123 456", "+999 666 333", "Iratus 7");
+        Customer customer = newCustomer("", "+999 666 333", "Iratus 7");
         try {
             manager.createCustomer(customer);
-            fail("numerical name not allowed");
+            fail("missing name not allowed");
         } catch (IllegalArgumentException e) {
         }
     }
