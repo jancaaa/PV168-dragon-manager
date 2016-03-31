@@ -10,6 +10,9 @@ public class Dragon {
     private int countOfHeads;
     private int priceForDay;
 
+    public Dragon() {
+    }
+
     public Long getId() {
         return id;
     }

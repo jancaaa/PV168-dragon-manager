@@ -5,6 +5,7 @@ package cz.muni.fi.pv168;
  * @version: 13. 3. 2016
  */
 public class ServiceFailureException extends RuntimeException {
+
     public ServiceFailureException(String msg) {
         super(msg);
     }

@@ -1,5 +1,8 @@
 package cz.muni.fi.pv168;
 
+import javafx.util.converter.LocalDateStringConverter;
+
+import java.time.LocalDate;
 import java.util.Date;
 
 /**
@@ -8,10 +11,10 @@ import java.util.Date;
  */
 public class Lease {
     private Long id;
-    private Dragon dragon;
-    private Customer customer;
-    private Date startDate;
-    private Date endDate;
+    private Long dragon;
+    private Long customer;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private int price;
 
     public Long getId() {
@@ -22,35 +25,35 @@ public class Lease {
         this.id = id;
     }
 
-    public Dragon getDragon() {
+    public Long getDragon() {
         return dragon;
     }
 
-    public void setDragon(Dragon dragon) {
+    public void setDragon(Long dragon) {
         this.dragon = dragon;
     }
 
-    public Customer getCustomer() {
+    public Long getCustomer() {
         return customer;
     }
 
-    public void setCustomer(Customer customer) {
+    public void setCustomer(Long customer) {
         this.customer = customer;
     }
 
-    public Date getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public Date getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 
